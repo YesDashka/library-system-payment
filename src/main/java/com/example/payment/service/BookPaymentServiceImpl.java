@@ -18,12 +18,15 @@ import java.util.stream.Collectors;
 @Service
 public class BookPaymentServiceImpl implements BookPaymentService {
 
-
     private final BookOrderRepository repository;
     private final BookPriceRepository priceRepository;
     private final BookOrderInfoRepository orderInfoRepository;
 
-    public BookPaymentServiceImpl(BookOrderRepository repository, BookPriceRepository priceRepository, BookOrderInfoRepository orderInfoRepository) {
+    public BookPaymentServiceImpl(
+            BookOrderRepository repository,
+            BookPriceRepository priceRepository,
+            BookOrderInfoRepository orderInfoRepository
+    ) {
         this.repository = repository;
         this.priceRepository = priceRepository;
         this.orderInfoRepository = orderInfoRepository;
@@ -40,7 +43,11 @@ public class BookPaymentServiceImpl implements BookPaymentService {
         return new BookOrderResult(totalPrice, OrderStatus.SUCCESS);
     }
 
-    private record OrderPrice(double price, long count) {}
+    private record OrderPriceCount(double price, long count) {
+        double sum() {
+            return price * count;
+        }
+    }
 
     private double calculateOrderPrice(List<BookOrderInfo> orderedBooks) {
         List<Long> ids = orderedBooks.stream().map(BookOrderInfo::getBookId).toList();
@@ -49,12 +56,8 @@ public class BookPaymentServiceImpl implements BookPaymentService {
                 .collect(Collectors.toMap(BookPrice::getBookId, BookPrice::getPrice));
 
         return orderedBooks.stream()
-                .map(orderInfo -> {
-                    Double price = bookPrices.get(orderInfo.getBookId());
-                    int count = orderInfo.getCount();
-                    return new OrderPrice(price, count);
-                })
-                .mapToDouble(s -> s.count * s.price)
+                .map(orderInfo -> new OrderPriceCount(bookPrices.get(orderInfo.getBookId()), orderInfo.getCount()))
+                .mapToDouble(OrderPriceCount::sum)
                 .sum();
     }
 
