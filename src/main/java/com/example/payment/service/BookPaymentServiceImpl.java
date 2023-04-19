@@ -1,7 +1,7 @@
 package com.example.payment.service;
 
 import com.example.payment.controller.request.BookOrderRequest;
-import com.example.payment.entity.BookOrder;
+import com.example.payment.entity.Order;
 import com.example.payment.entity.BookOrderInfo;
 import com.example.payment.entity.BookOrderResult;
 import com.example.payment.entity.BookPrice;
@@ -36,11 +36,10 @@ public class BookPaymentServiceImpl implements BookPaymentService {
     public BookOrderResult doPayment(BookOrderRequest request) {
         double totalPrice = calculateOrderPrice(request.getBooks());
         List<BookOrderInfo> bookOrderInfos = orderInfoRepository.saveAll(request.getBooks());
-        System.out.println(request);
-        BookOrder newOrder = repository.save(BookOrder.newOrder(bookOrderInfos));
+        Order newOrder = repository.save(Order.newOrder(bookOrderInfos));
 //        todo create real payment
-        BookOrder successOrder = repository.save(BookOrder.successOrder(newOrder));
-        return new BookOrderResult(totalPrice, OrderStatus.SUCCESS);
+        Order successOrder = repository.save(Order.successOrder(newOrder));
+        return new BookOrderResult(successOrder.getId(), totalPrice, OrderStatus.SUCCESS);
     }
 
     private record OrderPriceCount(double price, long count) {

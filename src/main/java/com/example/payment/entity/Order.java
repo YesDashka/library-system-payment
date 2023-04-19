@@ -10,13 +10,12 @@ import jakarta.persistence.Table;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "book_order")
-public class BookOrder {
+public class Order {
 
     @Id
     @Column(name = "id")
@@ -33,33 +32,33 @@ public class BookOrder {
     private final OrderStatus status;
 
 
-    protected BookOrder() {
+    protected Order() {
         this.orderedBooks = new ArrayList<>();
         this.id = "";
         this.date = null;
         this.status = null;
     }
 
-    private BookOrder(List<BookOrderInfo> orderedBooks, OrderStatus status) {
+    private Order(List<BookOrderInfo> orderedBooks, OrderStatus status) {
         this.id = UUID.randomUUID().toString();
         this.orderedBooks = new ArrayList<>(orderedBooks);
         this.date = LocalDate.now();
         this.status = status;
     }
 
-    private BookOrder(String id, List<BookOrderInfo> orderedBooks, OrderStatus status, LocalDate date) {
+    private Order(String id, List<BookOrderInfo> orderedBooks, OrderStatus status, LocalDate date) {
         this.id = id;
         this.orderedBooks = new ArrayList<>(orderedBooks);
         this.status = status;
         this.date = date;
     }
 
-    public static BookOrder newOrder(List<BookOrderInfo> orderedBooks) {
-        return new BookOrder(orderedBooks, OrderStatus.IN_PROGRESS);
+    public static Order newOrder(List<BookOrderInfo> orderedBooks) {
+        return new Order(orderedBooks, OrderStatus.IN_PROGRESS);
     }
 
-    public static BookOrder successOrder(BookOrder order) {
-        return new BookOrder(
+    public static Order successOrder(Order order) {
+        return new Order(
                 order.id,
                 order.orderedBooks,
                 OrderStatus.SUCCESS,
